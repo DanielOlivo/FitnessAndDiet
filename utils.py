@@ -19,7 +19,6 @@ def reset_database() -> None:
     drop_database()
     create_database()
 
-
 def create_user(first_name, last_name, birth_date, email, gender):
     with Session(engine) as session:
         user = User(
@@ -51,6 +50,11 @@ def find_users():
         result = session.execute(query)
         return result.all()
 
+def get_user_by_fullname(firstname, lastname) -> User:
+    with Session(engine) as session:
+        stmt = select(User).where(User.first_name == firstname and User.last_name == lastname)
+        return session.execute(stmt).first()[0]
+
 def get_users_after(datetime: datetime):
     with Session(engine) as session:
         stmt = select(User).where(User.creation_date >= datetime)
@@ -81,10 +85,14 @@ def delete_center(center: FitnessCenter):
 def find_centers():
     with Session(engine) as session:
         query = select(FitnessCenter)
-        result = session.execute(query)
-        print(result.all())
+        return session.execute(query).all()
 
-def find_center_by_name(name):
+def find_centers_after(date: datetime):
+    with Session(engine) as session:
+        query = select(FitnessCenter).where(FitnessCenter.creation_date >= date)
+        return session.execute(query).all()
+
+def find_center_by_name(name) -> FitnessCenter:
     with Session(engine) as session:
         query = select(FitnessCenter)
         result = session.execute(query).first()
@@ -99,12 +107,12 @@ def add_subscription(user: User, center: FitnessCenter):
         session.add(subscription)
         session.commit()
 
-def get_user_subscriptions(user: User):
+def get_user_subscriptions(user: User) -> list[FitnessSubscription]:
     with Session(engine) as session:
         stmt = select(FitnessSubscription).where(FitnessSubscription.user_id == user.user_id)
         return session.execute(stmt).all()
 
-def remove_subscription(subscription: FitnessSubscription):
+def delete_subscription(subscription: FitnessSubscription):
     with Session(engine) as session:
         stmt = delete(FitnessSubscription).where(FitnessSubscription.subscription_id == subscription.subscription_id)
         session.execute(stmt)
@@ -119,6 +127,13 @@ def get_subscriptions():
         print(stmt)
         return session.execute(stmt).all()
 
+def get_subscriptions_after(date):
+    with Session(engine) as session:
+        stmt = select(FitnessSubscription).where(FitnessSubscription.creation_date >= date)
+        return session.execute(stmt).all()
+
+
+
 def add_schedule(user: User, center: FitnessCenter):
     with Session(engine) as session:
         schedule = Schedule(
@@ -132,6 +147,11 @@ def remove_schedule(schedule: Schedule):
     with Session(engine) as session:
         session.delete(schedule)
         session.commit()
+
+def get_schedules(user: User) -> list[Schedule]:
+    with Session(engine) as session:
+        query = select(Schedule).where(Schedule.user_id == user.user_id)
+        return session.execute(query).all()
 
 def get_alarms(schedule: Schedule):
     with Session(engine) as session:

@@ -18,16 +18,20 @@ class User(Base):
     gender: Mapped[str] = mapped_column(String(1))
     creation_date: Mapped[datetime] = mapped_column(default=datetime.now())
 
-    subscriptions: Mapped[List['FitnessSubscription']] = relationship(
-        back_populates='user', cascade='all, delete-orphan'
-    )
-    schedules: Mapped[List['Schedule']] = relationship(
-        back_populates='user', cascade='all, delete-orphan'
-    )
+    # subscriptions: Mapped[List['FitnessSubscription']] = relationship(
+        # back_populates='user', cascade='all, delete'
+        # back_populates='user', cascade='all, delete-orphan'
+    # )
+    # schedules: Mapped[List['Schedule']] = relationship(
+    #     back_populates='user', cascade='all, delete-orphan'
+    # )
+    # profile: Mapped['Profile'] = relationship(
+    #     back_populates='user', cascade='all, delete-orphan'
+    # )
+    subscriptions = relationship('FitnessSubscription', cascade='all, delete', passive_deletes=True)
+    schedules = relationship('Schedule', cascade='all, delete', passive_deletes=True)
+    profile = relationship('Profile', cascade='all, delete', passive_deletes=True)
 
-    profile: Mapped['Profile'] = relationship(
-        back_populates='user', cascade='all, delete-orphan'
-    )
 
     def __repr__(self):
         return f'[User {self.user_id!r} {self.first_name!r} {self.last_name!r}]'
@@ -39,13 +43,18 @@ class FitnessCenter(Base):
     center_id: Mapped[int] = mapped_column(primary_key=True)
     center_name: Mapped[str] = mapped_column(String(255))
     center_address: Mapped[str] = mapped_column(String(255))
+    creation_date: Mapped[datetime] = mapped_column(default = datetime.now())
 
-    subscriptions: Mapped[List['FitnessSubscription']] = relationship(
-        back_populates='center', cascade='all, delete-orphan'
-    )
-    schedules: Mapped[List['Schedule']] = relationship(
-        back_populates='center', cascade='all, delete-orphan'
-    )
+    # subscriptions: Mapped[List['FitnessSubscription']] = relationship(
+    #     back_populates='center', cascade='all, delete-orphan'
+    # )
+    # subscriptions = relationship('FitnessSubscription', backref='center', cascade='all, delete')
+    # Schedules = relationship('Schedule', backref='center', cascade='all, delete') 
+    # schedules: Mapped[List['Schedule']] = relationship(
+    #     back_populates='center', cascade='all, delete-orphan'
+    # )
+    subscriptions = relationship('FitnessSubscription', cascade='all, delete', passive_deletes=True)
+    schedules = relationship('Schedule', cascade='all, delete', passive_deletes=True) 
 
     def __repr__(self):
         return f'[Center {self.center_id!r} {self.center_name!r} {self.center_address!r}]'
@@ -54,8 +63,9 @@ class FitnessSubscription(Base):
     __tablename__ = 'fitness_subscription'
 
     subscription_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id'))
-    center_id: Mapped[int] = mapped_column(ForeignKey('fitness_center.center_id'))
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id', ondelete='cascade'))
+    center_id: Mapped[int] = mapped_column(ForeignKey('fitness_center.center_id', ondelete='cascade'))
+    creation_date: Mapped[datetime] = mapped_column(default=datetime.now())
 
     user: Mapped['User'] = relationship(back_populates='subscriptions')
     center: Mapped['FitnessCenter'] = relationship(back_populates='subscriptions')
@@ -63,8 +73,8 @@ class FitnessSubscription(Base):
 class Schedule(Base):
     __tablename__ = 'schedule'
     schedule_id: Mapped[int] = mapped_column(primary_key=True)
-    center_id: Mapped[int]  = mapped_column(ForeignKey('fitness_center.center_id'))
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id'))
+    center_id: Mapped[int]  = mapped_column(ForeignKey('fitness_center.center_id', ondelete='cascade'))
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id', ondelete='cascade'))
 
     user: Mapped['User'] = relationship(back_populates='schedules')
     center: Mapped['FitnessCenter'] = relationship(back_populates='schedules')
@@ -87,7 +97,7 @@ class Alarm(Base):
 class Profile(Base):
     __tablename__ = 'profile'
     id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id', ondelete='cascade'), nullable=False)
     weight: Mapped[float] = mapped_column(nullable=False)
     height: Mapped[float] = mapped_column(nullable=False)
     update_date: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now())
