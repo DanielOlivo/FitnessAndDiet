@@ -1,14 +1,8 @@
-import psycopg2
-import sqlalchemy
 from typing import List
-from sqlalchemy import String, Date, ForeignKey, Integer, URL, create_engine, select, func, and_
+from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
-from dotenv import load_dotenv
 from datetime import date
 from datetime import datetime
-from faker import Faker
-import os
-from itertools import islice
 
 class Base(DeclarativeBase):
     pass
@@ -51,6 +45,9 @@ class FitnessCenter(Base):
     schedules: Mapped[List['Schedule']] = relationship(
         back_populates='center', cascade='all, delete-orphan'
     )
+
+    def __repr__(self):
+        return f'[Center {self.center_id!r} {self.center_name!r} {self.center_address!r}]'
 
 class FitnessSubscription(Base):
     __tablename__ = 'fitness_subscription'
