@@ -16,6 +16,7 @@ class User(Base):
     birth_date: Mapped[date]
     email: Mapped[str] = mapped_column(String(100))
     gender: Mapped[str] = mapped_column(String(1))
+    creation_date: Mapped[datetime] = mapped_column(default=datetime.now())
 
     subscriptions: Mapped[List['FitnessSubscription']] = relationship(
         back_populates='user', cascade='all, delete-orphan'
@@ -89,7 +90,7 @@ class Profile(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id'), nullable=False)
     weight: Mapped[float] = mapped_column(nullable=False)
     height: Mapped[float] = mapped_column(nullable=False)
-    update_date: Mapped[datetime] = mapped_column(nullable=False)
+    update_date: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now())
     notification: Mapped[datetime] = mapped_column(nullable=False)
 
     user: Mapped['User'] = relationship(back_populates='profile')

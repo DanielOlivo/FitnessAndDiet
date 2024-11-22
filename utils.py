@@ -1,22 +1,16 @@
-import psycopg2
-import sqlalchemy
 from typing import List
-from sqlalchemy import String, Date, ForeignKey, Integer, URL, create_engine, select, func, and_
+from sqlalchemy import String, Date, ForeignKey, Integer, URL, create_engine, select, func, and_, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 from dotenv import load_dotenv
 from datetime import date
 from datetime import datetime
-from faker import Faker
-import os
-from itertools import islice
 
-# from  models import *
 from models import *
 import models
 from engine import *
 
 def create_database() -> None:
-    models.Base.metadata.create_all(engine)
+    models.Base.metadata.create_all(engine, checkfirst=True)
 
 def drop_database() -> None:
     models.Base.metadata.drop_all(engine)
@@ -55,7 +49,18 @@ def find_users():
     with Session(engine) as session:
         query = select(User)
         result = session.execute(query)
-        print(result.all())
+        return result.all()
+
+def get_users_after(datetime: datetime):
+    with Session(engine) as session:
+        stmt = select(User).where(User.creation_date >= datetime)
+        return session.execute(stmt).all()
+
+def delete_user(user: User):
+    with Session(engine) as session:
+        stmt = delete(User).where(User.user_id == user.user_id)
+        session.execute(stmt)
+        session.commit()
 
 
 def create_center(name, address):
@@ -65,6 +70,12 @@ def create_center(name, address):
             center_address = address
         ) 
         session.add(center)
+        session.commit()
+
+def delete_center(center: FitnessCenter):
+    with Session(engine) as session:
+        stmt = delete(FitnessCenter).where(FitnessCenter.center_id == center.center_id)
+        session.execute(stmt)
         session.commit()
 
 def find_centers():
@@ -80,8 +91,6 @@ def find_center_by_name(name):
         return result[0]
 
 def add_subscription(user: User, center: FitnessCenter):
-    print(user)
-    print(center)
     with Session(engine) as session:
         subscription = FitnessSubscription(
             user_id = user.user_id,
@@ -90,8 +99,16 @@ def add_subscription(user: User, center: FitnessCenter):
         session.add(subscription)
         session.commit()
 
-def remove_subscription(subscription):
-    pass
+def get_user_subscriptions(user: User):
+    with Session(engine) as session:
+        stmt = select(FitnessSubscription).where(FitnessSubscription.user_id == user.user_id)
+        return session.execute(stmt).all()
+
+def remove_subscription(subscription: FitnessSubscription):
+    with Session(engine) as session:
+        stmt = delete(FitnessSubscription).where(FitnessSubscription.subscription_id == subscription.subscription_id)
+        session.execute(stmt)
+        session.commit()
 
 def get_subscriptions():
     with Session(engine) as session:
@@ -102,30 +119,85 @@ def get_subscriptions():
         print(stmt)
         return session.execute(stmt).all()
 
-def add_schedule(user):
-    pass
+def add_schedule(user: User, center: FitnessCenter):
+    with Session(engine) as session:
+        schedule = Schedule(
+            user_id = user.user_id,
+            center_id = None if center is None else center.center_id
+        )
+        session.add(schedule)
+        session.commit()
 
-def remove_schedule(schedule):
-    pass
+def remove_schedule(schedule: Schedule):
+    with Session(engine) as session:
+        session.delete(schedule)
+        session.commit()
 
-def add_alarm(schedule, day_of_week, time_of_day):
-    pass
+def get_alarms(schedule: Schedule):
+    with Session(engine) as session:
+        stmt = \
+            select(Alarm) \
+            .where(Alarm.schedule_id == schedule.schedule_id) \
+            .order_by(Alarm.weekday.asc(), Alarm.hour.asc(), Alarm.minutes.asc())
+        return session.execute(stmt).all()
 
-def update_alarm(alarm, day_of_week, time_of_day):
-    pass
+def add_alarm(schedule: Schedule, day_of_week: int, hours: int, minutes: int, duration: int):
+    with Session(engine) as session:
+        alarm = Alarm(
+            schedule_id = schedule.schedule_id,
+            weekday = day_of_week,
+            hour = hours,
+            minutes = minutes,
+            duration = duration
+        )
+        session.add(alarm)
+        session.commit()
 
-def remove_alarm(alarm):
-    pass
+def update_alarm(alarm: Alarm, day_of_week=None, hours=None, minutes=None, duration=None):
+    with Session(engine) as session:
+        if not day_of_week is None:
+            alarm.weekday = day_of_week
+        if not hours is None:
+            alarm.hour = hours 
+        if not minutes is None:
+            alarm.minutes = minutes
+        if not duration is None:
+            alarm.duration = duration
+        session.add(alarm)
+        session.commit()
 
+def remove_alarm(alarm: Alarm):
+    with Session(engine) as session:
+        stmt = delete(Alarm).where(Alarm.alarm_id == alarm.alarm_id)
+        session.execute(stmt)
+        session.commit()
 
-def add_profile(user, height, width):
-    pass
+def add_profile(user: User, height: float, weight: float, notification: datetime):
+    with Session(engine) as session:
+        profile = Profile(
+            user_id = user.user_id,
+            weight = weight,
+            height = height,
+            notification = notification
+        )
+        session.add(profile)
+        session.commit()
 
-def delete_profile(profile):
-    pass
+def get_last_profile(user: User):
+    with Session(engine) as session:
+        stmt = select(Profile).where(Profile.user_id == user.user_id).order_by(Profile.update_date.desc())
+        return session.execute(stmt).first()
 
-def get_profiles(user):
-    pass
+def delete_profile(profile: Profile):
+    with Session(engine) as session:
+        stmt = delete(Profile).where(Profile.id == profile.id)
+        session.execute(stmt)
+        session.commit()
+
+def get_profiles(user: User):
+    with Session(engine) as session:
+        stmt = select(Profile).where(Profile.user_id == user.user_id)
+        return session.execute(stmt).all()
 
 def show_stmts():
     print('\n\n'.join(str(stmt) for stmt in [
