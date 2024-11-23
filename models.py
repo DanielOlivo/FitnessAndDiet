@@ -16,6 +16,7 @@ class User(Base):
     birth_date: Mapped[date]
     email: Mapped[str] = mapped_column(String(100))
     gender: Mapped[str] = mapped_column(String(1))
+    city: Mapped[str] = mapped_column(String(100))
     creation_date: Mapped[datetime] = mapped_column(default=datetime.now())
 
     # subscriptions: Mapped[List['FitnessSubscription']] = relationship(
