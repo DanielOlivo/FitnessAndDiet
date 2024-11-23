@@ -87,6 +87,9 @@ def create_center(name: str, address: str) -> None:
         session.add(center)
         session.commit()
 
+def center_exists(name: str) -> bool:
+    pass
+
 def delete_center(center: FitnessCenter) -> None:
     with Session(engine) as session:
         stmt = delete(FitnessCenter).where(FitnessCenter.center_id == center.center_id)
