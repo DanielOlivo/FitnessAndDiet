@@ -88,12 +88,12 @@ def get_centers():
     '''returns all fitness centers'''
     with Session(engine) as session:
         query = select(FitnessCenter)
-        return session.execute(query).all()
+        return [row[0] for row in session.execute(query).all()]
 
 def get_centers_after(date: datetime):
     with Session(engine) as session:
         query = select(FitnessCenter).where(FitnessCenter.creation_date >= date)
-        return session.execute(query).all()
+        return [row[0] for row in session.execute(query).all()]
 
 def get_center_by_name(name: str) -> FitnessCenter:
     with Session(engine) as session:
@@ -129,17 +129,13 @@ def delete_subscription(subscription: FitnessSubscription):
 
 def get_subscriptions():
     with Session(engine) as session:
-        stmt = \
-            select(User, FitnessCenter).select_from(User) \
-            .join(FitnessSubscription, User.user_id == FitnessSubscription.user_id) \
-            .join(FitnessCenter, FitnessCenter.center_id == FitnessSubscription.center_id)
-        print(stmt)
+        stmt = select(User, FitnessCenter).join(User.subscriptions) #.join(FitnessCenter.subscriptions)
         return session.execute(stmt).all()
 
-def get_subscriptions_after(date):
+def get_subscriptions_after(date: datetime) -> list[FitnessSubscription]:
     with Session(engine) as session:
         stmt = select(FitnessSubscription).where(FitnessSubscription.creation_date >= date)
-        return session.execute(stmt).all()
+        return [row[0] for row in session.execute(stmt).all()]
 
 
 
@@ -170,6 +166,11 @@ def get_alarms(schedule: Schedule) -> list[Tuple[Alarm]]:
             .order_by(Alarm.weekday.asc(), Alarm.hour.asc(), Alarm.minutes.asc())
         return session.execute(stmt).all()
 
+def get_alarms_after(date: datetime) -> list[Alarm]:
+    with Session(engine) as session:
+        query = select(Alarm).where(Alarm.creation_date >= date)
+        return [row[0] for row in session.execute(query).all()]
+
 def add_alarm(schedule: Schedule, day_of_week: int, hours: int, minutes: int, duration: int):
     with Session(engine) as session:
         alarm = Alarm(
@@ -195,7 +196,7 @@ def update_alarm(alarm: Alarm, day_of_week=None, hours=None, minutes=None, durat
         session.add(alarm)
         session.commit()
 
-def remove_alarm(alarm: Alarm):
+def delete_alarm(alarm: Alarm):
     with Session(engine) as session:
         stmt = delete(Alarm).where(Alarm.alarm_id == alarm.alarm_id)
         session.execute(stmt)

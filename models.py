@@ -95,6 +95,8 @@ class Alarm(Base):
     minutes: Mapped[int] = mapped_column(nullable=False)
     duration: Mapped[int]
 
+    creation_date: Mapped[datetime] = mapped_column(default=datetime.now())
+
     schedule: Mapped['Schedule'] = relationship(back_populates='alarms')
 
 class Profile(Base):
