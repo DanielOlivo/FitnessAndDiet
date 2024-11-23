@@ -68,6 +68,12 @@ def delete_user(user: User) -> None:
         session.execute(stmt)
         session.commit()
 
+def delete_users_after(date: datetime) -> None:
+    with Session(engine) as session:
+        stmt = delete(User).where(User.creation_date >= date)
+        session.execute(stmt)
+        session.commit()
+
 
 def create_center(name: str, address: str) -> None:
     with Session(engine) as session:
@@ -81,6 +87,12 @@ def create_center(name: str, address: str) -> None:
 def delete_center(center: FitnessCenter) -> None:
     with Session(engine) as session:
         stmt = delete(FitnessCenter).where(FitnessCenter.center_id == center.center_id)
+        session.execute(stmt)
+        session.commit()
+
+def delete_centers_after(date: datetime) -> None:
+    with Session(engine) as session:
+        stmt = delete(FitnessCenter).where(FitnessCenter.creation_date >= date)
         session.execute(stmt)
         session.commit()
 
@@ -124,6 +136,12 @@ def get_user_subscriptions(user: User) -> list[FitnessSubscription]:
 def delete_subscription(subscription: FitnessSubscription):
     with Session(engine) as session:
         stmt = delete(FitnessSubscription).where(FitnessSubscription.subscription_id == subscription.subscription_id)
+        session.execute(stmt)
+        session.commit()
+
+def delete_subscriptions_after(date: datetime):
+    with Session(engine) as session:
+        stmt = delete(FitnessSubscription).where(FitnessSubscription.creation_date >= date)
         session.execute(stmt)
         session.commit()
 
@@ -202,6 +220,13 @@ def delete_alarm(alarm: Alarm):
         session.execute(stmt)
         session.commit()
 
+def delete_alarms_after(date: datetime):
+    with Session(engine) as session:
+        stmt = delete(Alarm).where(Alarm.creation_date >= date)
+        session.execute(stmt)
+        session.commit()
+
+
 def add_profile(user: User, height: float, weight: float, notification: datetime):
     with Session(engine) as session:
         profile = Profile(
@@ -234,6 +259,12 @@ def get_profiles_after(date: datetime) -> list[Profile]:
     with Session(engine) as session:
         stmt = select(Profile).where(Profile.update_date >= date)
         return [row[0] for row in session.execute(stmt).all()]
+
+def delete_profiles_after(date: datetime) -> None:
+    with Session(engine) as session:
+        stmt = delete(Profile).where(Profile.update_date >= date)
+        session.execute(stmt)
+        session.commit()
 
 
 

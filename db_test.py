@@ -6,11 +6,10 @@ class DbTest(unittest.TestCase):
 
     @staticmethod
     def clean(date):
-        for user in get_users_after(date):
-            delete_user(user)
-
-        for (center, ) in get_centers_after(date):
-            delete_center(center)
+        delete_users_after(date)
+        delete_centers_after(date)
+        delete_alarms_after(date)
+        delete_profiles_after(date)
 
 
     def test_all(self):
@@ -53,6 +52,7 @@ class DbTest(unittest.TestCase):
         )
         centers = get_centers()
         self.assertEqual(len(centers), 2, 'two centers only')
+        self.assertEqual(type(centers[0]), FitnessCenter)
 
 
         '''Bob has a subscription in center 1'''
@@ -99,7 +99,7 @@ class DbTest(unittest.TestCase):
         add_profile(bob, 180, 65, now + timedelta(days=1))
 
         '''he gained 5kg more'''
-        add_profile(bob, 180, 70, now + timedelta(days=1))
+        add_profile(bob, 180, 70, now + timedelta(days=50))
 
 
         bob_profile_records = [row[0] for row in get_profiles(bob)]
@@ -117,6 +117,10 @@ class DbTest(unittest.TestCase):
         self.assertEqual(type(alice_schedule), Schedule)
         
         self.assertTrue(alice_schedule.center_id is None)
+
+
+        '''all subscriptions'''
+        all_subs = get_subscriptions()
 
         '''clean up after the test'''
         DbTest.clean(now)
