@@ -182,13 +182,13 @@ def get_schedules(user: User) -> list[Schedule]:
         query = select(Schedule).where(Schedule.user_id == user.user_id)
         return [row[0] for row in session.execute(query).all()]
 
-def get_alarms(schedule: Schedule) -> list[Tuple[Alarm]]:
+def get_alarms(schedule: Schedule) -> list[Alarm]:
     with Session(engine) as session:
         stmt = \
             select(Alarm) \
             .where(Alarm.schedule_id == schedule.schedule_id) \
             .order_by(Alarm.weekday.asc(), Alarm.hour.asc(), Alarm.minutes.asc())
-        return session.execute(stmt).all()
+        return [row[0] for row in session.execute(stmt).all()]
 
 def get_alarms_after(date: datetime) -> list[Alarm]:
     with Session(engine) as session:

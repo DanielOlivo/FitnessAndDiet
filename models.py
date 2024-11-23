@@ -2,7 +2,7 @@ from typing import List
 from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 from datetime import date
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class Base(DeclarativeBase):
     pass
@@ -99,6 +99,18 @@ class Alarm(Base):
     creation_date: Mapped[datetime] = mapped_column(default=datetime.now())
 
     schedule: Mapped['Schedule'] = relationship(back_populates='alarms')
+
+    def to_datetime(self) -> datetime:
+        today = date.today()
+        days_ahead = self.weekday - today.weekday()
+        if days_ahead <= 0:
+            days_ahead += 7
+        return datetime(today.year, today.month, today.day) + timedelta(days = days_ahead, hours=self.hour, minutes=self.minutes)
+        
+
+    def __repr__(self):
+        return f"(Alarm)"
+        # return super().__repr__()
 
 class Profile(Base):
     __tablename__ = 'profile'

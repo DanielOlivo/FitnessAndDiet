@@ -68,15 +68,30 @@ def handle_new_alarms(schedule: Schedule):
 
 
 # #print the summary of the schedule
-def handle_schedules(user: User):
+def handle_schedules(user: User) -> Schedule:
     schedule = get_schedules(user)
     if schedule:
         print(schedule)
-        return schedule
+        return schedule[0]
     else:
         add_schedule(user,None)
         schedule = get_schedules(user)[0]
         handle_new_alarms(schedule)
+        return schedule
+
+def get_past_and_incoming_alarm(alarms: list[Alarm]) -> Alarm:
+    dates = [alarm.to_datetime() for alarm in alarms]
+    dates.sort()
+    return (dates[-1] - timedelta(days=7),dates[0])
+
+def main():
+    user = handle_log_in()
+    schedule = handle_schedules(user)
+    alarms = get_alarms(schedule)
+
+    (past, incoming) = get_past_and_incoming_alarm(alarms)
+    print(f'incoming training is at {incoming}, in {incoming - datetime.now()}') 
+
 
 
 # fitness_session_confirm = input('Enter (Y)es to confirm, otherwise (N)o: ')# to confirm the sessions. No to 
