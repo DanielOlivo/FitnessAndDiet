@@ -6,10 +6,10 @@ class DbTest(unittest.TestCase):
 
     @staticmethod
     def clean(date):
-        for (user, ) in get_users_after(date):
+        for user in get_users_after(date):
             delete_user(user)
 
-        for (center, ) in find_centers_after(date):
+        for (center, ) in get_centers_after(date):
             delete_center(center)
 
 
@@ -38,8 +38,9 @@ class DbTest(unittest.TestCase):
             gender='F'
         )
 
-        users = find_users()
+        users = get_users()
         self.assertEqual(len(users), 2, 'two users only')
+        self.assertEqual(type(users[0]), User)
 
         '''there are two fitness centers'''
         create_center(
@@ -50,7 +51,7 @@ class DbTest(unittest.TestCase):
             name = 'center 2',
             address = 'Tel Aviv'
         )
-        centers = find_centers()
+        centers = get_centers()
         self.assertEqual(len(centers), 2, 'two centers only')
 
 
@@ -59,13 +60,17 @@ class DbTest(unittest.TestCase):
         self.assertEqual(bob.first_name, 'Bob')
         self.assertEqual(bob.last_name, 'Green')
 
-        center1 = find_center_by_name('center 1')
+        center1 = get_center_by_name('center 1')
         self.assertEqual(center1.center_name, 'center 1')
 
 
         add_subscription(bob, center1)
         bobs_subscriptions = get_user_subscriptions(bob)
         self.assertEqual(len(bobs_subscriptions), 1)
+
+        '''get center by user'''
+        bob_centers = get_user_centers(bob)
+        self.assertEqual(len(bob_centers), 1)
 
         '''Bob has a schedule''' 
         add_schedule(bob, center1) 

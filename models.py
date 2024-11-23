@@ -104,6 +104,6 @@ class Profile(Base):
     weight: Mapped[float] = mapped_column(nullable=False)
     height: Mapped[float] = mapped_column(nullable=False)
     update_date: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now())
-    notification: Mapped[datetime] = mapped_column(nullable=False)
+    notification: Mapped[datetime] = mapped_column(nullable=True)
 
     user: Mapped['User'] = relationship(back_populates='profile')

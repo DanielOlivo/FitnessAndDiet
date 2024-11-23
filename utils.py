@@ -19,7 +19,7 @@ def reset_database() -> None:
     drop_database()
     create_database()
 
-def create_user(first_name, last_name, birth_date, email, gender):
+def create_user(first_name: str, last_name: str, birth_date: date, email: str, gender: str) -> None:
     with Session(engine) as session:
         user = User(
             first_name = first_name,
@@ -31,7 +31,7 @@ def create_user(first_name, last_name, birth_date, email, gender):
         session.add(user)
         session.commit()
 
-def find_user_by_last_name(last_name):
+def get_user_by_last_name(last_name):
     with Session(engine) as session:
         query = select(User).filter_by(last_name = last_name)
         result = session.execute(query)
@@ -43,31 +43,33 @@ def get_first_user():
         result = session.execute(query)
         return result.first()
 
-
-def find_users():
+def get_users() -> list[User]:
+    '''returns all users'''
     with Session(engine) as session:
         query = select(User)
         result = session.execute(query)
-        return result.all()
+        return [row[0] for row in result.all()]
 
-def get_user_by_fullname(firstname, lastname) -> User:
+def get_user_by_fullname(firstname: str, lastname: str) -> User:
+    '''returns user with given full name'''
     with Session(engine) as session:
         stmt = select(User).where(User.first_name == firstname and User.last_name == lastname)
         return session.execute(stmt).first()[0]
 
-def get_users_after(datetime: datetime):
+def get_users_after(datetime: datetime) -> list[User]:
+    '''returns all users which were created after datetime'''
     with Session(engine) as session:
         stmt = select(User).where(User.creation_date >= datetime)
-        return session.execute(stmt).all()
+        return [row[0] for row in session.execute(stmt).all()]
 
-def delete_user(user: User):
+def delete_user(user: User) -> None:
     with Session(engine) as session:
         stmt = delete(User).where(User.user_id == user.user_id)
         session.execute(stmt)
         session.commit()
 
 
-def create_center(name, address):
+def create_center(name: str, address: str) -> None:
     with Session(engine) as session:
         center = FitnessCenter(
             center_name = name,
@@ -76,29 +78,36 @@ def create_center(name, address):
         session.add(center)
         session.commit()
 
-def delete_center(center: FitnessCenter):
+def delete_center(center: FitnessCenter) -> None:
     with Session(engine) as session:
         stmt = delete(FitnessCenter).where(FitnessCenter.center_id == center.center_id)
         session.execute(stmt)
         session.commit()
 
-def find_centers():
+def get_centers():
+    '''returns all fitness centers'''
     with Session(engine) as session:
         query = select(FitnessCenter)
         return session.execute(query).all()
 
-def find_centers_after(date: datetime):
+def get_centers_after(date: datetime):
     with Session(engine) as session:
         query = select(FitnessCenter).where(FitnessCenter.creation_date >= date)
         return session.execute(query).all()
 
-def find_center_by_name(name) -> FitnessCenter:
+def get_center_by_name(name: str) -> FitnessCenter:
     with Session(engine) as session:
-        query = select(FitnessCenter)
+        query = select(FitnessCenter).where(FitnessCenter.center_name == name)
         result = session.execute(query).first()
         return result[0]
 
-def add_subscription(user: User, center: FitnessCenter):
+def get_user_centers(user: User) -> list[FitnessCenter]:
+    '''return all centers where given user have subscriptions'''
+    with Session(engine) as session:
+        query = select(FitnessCenter).join(FitnessCenter.subscriptions).where(FitnessSubscription.user_id == user.user_id)
+        return [row[0] for row in session.execute(query).all()]
+
+def add_subscription(user: User, center: FitnessCenter) -> None:
     with Session(engine) as session:
         subscription = FitnessSubscription(
             user_id = user.user_id,
@@ -218,6 +227,14 @@ def get_profiles(user: User):
     with Session(engine) as session:
         stmt = select(Profile).where(Profile.user_id == user.user_id)
         return session.execute(stmt).all()
+
+
+def get_profiles_after(date: datetime) -> list[Profile]:
+    with Session(engine) as session:
+        stmt = select(Profile).where(Profile.update_date >= date)
+        return [row[0] for row in session.execute(stmt).all()]
+
+
 
 def show_stmts():
     print('\n\n'.join(str(stmt) for stmt in [
