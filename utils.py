@@ -177,10 +177,10 @@ def remove_schedule(schedule: Schedule):
         session.delete(schedule)
         session.commit()
 
-def get_schedules(user: User) -> list[Tuple[Schedule]]:
+def get_schedules(user: User) -> list[Schedule]:
     with Session(engine) as session:
         query = select(Schedule).where(Schedule.user_id == user.user_id)
-        return session.execute(query).all()
+        return [row[0] for row in session.execute(query).all()]
 
 def get_alarms(schedule: Schedule) -> list[Tuple[Alarm]]:
     with Session(engine) as session:
