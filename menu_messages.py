@@ -8,53 +8,49 @@ welcome_message= input(
     We will ask you first your credentials. Together, we\'ll set the session(s).
     YOU MUST update on daily basis your accomplishment on the sessions, and your weight.
     ''')
-# user_first_name = input (' Enter your first name: ') # varchar(50)
-# user_last_name = input ('Enter your last name: ') # varchar(50)
-# user_dob = input ('Enter your date of birth. e.g. 2024-12-31: ') # date, vaidation required, calculation of age
-# user_email = input ('Enter your email address: ') # text, vallidation rquired if @ included
-# user_city = input ('Enter the city you live in: ') # we could do a table with the list of cities in Israel. OPTIONAL, question of time
-# user_gender = input ('Enter your gender. (F)emale or (M)ale: ') # validation required on F or M
+
 def handle_new_user() -> User:
-    user_first_name = input (' Enter your first name: ') # varchar(50)
-    user_last_name = input ('Enter your last name: ') # varchar(50)
-    user_dob = input ('Enter your date of birth. e.g. 2024-12-31: ') # date, vaidation required, calculation of age
+    user_first_name = input (' Enter your first name: ') 
+    user_last_name = input ('Enter your last name: ') 
+    user_dob = input ('Enter your date of birth. e.g. 2024-12-31: ') 
     dob = datetime.strptime(user_dob, "%Y-%m-%d")
-    user_email = input ('Enter your email address: ') # text, vallidation rquired if @ included
-    user_city = input ('Enter the city you live in: ') # we could do a table with the list of cities in Israel. OPTIONAL, question of time
-    user_gender = input ('Enter your gender. (F)emale or (M)ale: ') # validation required on F or M
-    create_user(user_first_name, user_last_name, dob, user_email, user_gender)
+    user_email = input ('Enter your email address: ') 
+    user_city = input ('Enter the city you live in: ') 
+    user_gender = input ('Enter your gender. (F)emale or (M)ale: ') 
+    create_user(user_first_name, user_last_name, dob, user_email, user_city, user_gender)
 
     user = get_user_by_fullname(user_first_name, user_last_name)
     return user
 
 def handle_log_in() -> User:
-    print('who are you?')
-    user_input = input("first_name last_name: ")
+    print('Please present yourselves.')
+    user_input = input("Enter your first name and last name, separate by a space character: ")
     [first_name, last_name] = user_input.split(' ')
     if user_exists(first_name, last_name):
         return get_user_by_fullname(first_name, last_name)
     else:
         return handle_new_user()
 
-
-# fitness = input ('Do you have any subscription to a fitness center? (Y)es or (N)o: ') # validation required on Y or N. OPTIONAL ask for the next question?
-# alternative_fitness= input ('Do you plan to go walking, running or swimming, by yourself? (Y)es or (N)o:  ') # validation required on Y or N.
-# fitness_center = input ('Enter the address of the fitness center: ')# track the address
 def handle_centers():
-    pass
+    user_fitness= input('Do you have any subscription to a fitness center? (Y)es or (N)o: ').upper().strip()
+    if user_fitness == 'Y':
+        fitness_center_name = input ('Enter the name of the fitness center: ')
+        if center_exists(fitness_center_name):
+            return get_center_by_name(fitness_center_name) 
+        else: 
+            fitness_center_address = input ('Enter the address of the center: ')
+            create_center(fitness_center_name, fitness_center_address)
+            return get_center_by_name(fitness_center_name)
+    else:
+        print ('I am walking, running or swimming, by myself.')
+        return None
 
-
-
-# fitness_alarm_day = input('''Enter the weekday ((M)onday, (T)uesday...) you are attending the session(s)per week. 
-#                       Type (H)our to set the hour. Type e(X)it to end all the sessions: ''') # validation on the letter of the weekday. validation on X. Keep asking till X. valiation on H.
-# fitness_alarm_hour = input('''Enter the time you are attending the session(s)per week. 
-#                       Type (D)ay to set the next day. Type e(X)it to end all the sessions: ''') # 
 def handle_new_alarms(schedule: Schedule):
     while True: 
-        print("when?")
-        user_input = input("<weekday> <hour>:<minutes> or type return: ").lower().strip()
+        print("Type Enter to start record the sessions of the week.")
+        user_input = input("<weekday> <hour>:<minutes> or type e(x)it to stop recording the schedule: ").lower().strip()
 
-        if user_input == 'return':
+        if user_input == 'x':
             break
 
         result = re.search(r"^(\w+)\s+(\d\d):(\d\d)\s+(\d+)$", user_input) 
@@ -68,13 +64,20 @@ def handle_new_alarms(schedule: Schedule):
             add_alarm(schedule, weekday, hour, minutes, duration)
             break
         else:
-            print("I didn't get it")
+            print("You haven\'t correctly typed the info. Try again.")
 
 
 # #print the summary of the schedule
 def handle_schedules(user: User):
+    schedule = get_schedules(user)
+    if schedule:
+        print(schedule)
+        return schedule
+    else:
+        add_schedule(user,None)
+        schedule = get_schedules(user)[0]
+        handle_new_alarms(schedule)
 
-    pass
 
 # fitness_session_confirm = input('Enter (Y)es to confirm, otherwise (N)o: ')# to confirm the sessions. No to 
 # fitness_notification = print(f'Today{fitness_alarm_day}, you have a session at {fitness_alarm_hour}.')# to be notified one hour before the session, the same day.
