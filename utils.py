@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from sqlalchemy import String, Date, ForeignKey, Integer, URL, create_engine, select, func, and_, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 from dotenv import load_dotenv
@@ -148,12 +148,12 @@ def remove_schedule(schedule: Schedule):
         session.delete(schedule)
         session.commit()
 
-def get_schedules(user: User) -> list[Schedule]:
+def get_schedules(user: User) -> list[Tuple[Schedule]]:
     with Session(engine) as session:
         query = select(Schedule).where(Schedule.user_id == user.user_id)
         return session.execute(query).all()
 
-def get_alarms(schedule: Schedule):
+def get_alarms(schedule: Schedule) -> list[Tuple[Alarm]]:
     with Session(engine) as session:
         stmt = \
             select(Alarm) \

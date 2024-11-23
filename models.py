@@ -73,30 +73,33 @@ class FitnessSubscription(Base):
 class Schedule(Base):
     __tablename__ = 'schedule'
     schedule_id: Mapped[int] = mapped_column(primary_key=True)
-    center_id: Mapped[int]  = mapped_column(ForeignKey('fitness_center.center_id', ondelete='cascade'))
+    center_id: Mapped[int]  = mapped_column(ForeignKey('fitness_center.center_id', ondelete='cascade'), nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id', ondelete='cascade'))
 
     user: Mapped['User'] = relationship(back_populates='schedules')
     center: Mapped['FitnessCenter'] = relationship(back_populates='schedules')
-    alarms: Mapped[List['Alarm']] = relationship(
-        back_populates='schedule', cascade='all, delete-orphan'
-    )
+    # alarms: Mapped[List['Alarm']] = relationship(
+    #     back_populates='schedule', cascade='all, delete-orphan'
+    # )
+    alarms = relationship('Alarm', cascade='all, delete', passive_deletes=True)
+    def __repr__(self):
+        return f'Schedule {self.schedule_id!r}'
 
 class Alarm(Base):
     __tablename__ = 'alarm'
 
     alarm_id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
-    schedule_id: Mapped[int] = mapped_column(ForeignKey('schedule.schedule_id'), nullable=False)
+    schedule_id: Mapped[int] = mapped_column(ForeignKey('schedule.schedule_id', ondelete='cascade'))
     weekday: Mapped[int]  = mapped_column(nullable=False)
     hour: Mapped[int] = mapped_column(nullable=False)
-    minutes: Mapped[int]  = mapped_column(nullable=False)
+    minutes: Mapped[int] = mapped_column(nullable=False)
     duration: Mapped[int]
 
     schedule: Mapped['Schedule'] = relationship(back_populates='alarms')
 
 class Profile(Base):
     __tablename__ = 'profile'
-    id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    profile_id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id', ondelete='cascade'), nullable=False)
     weight: Mapped[float] = mapped_column(nullable=False)
     height: Mapped[float] = mapped_column(nullable=False)
