@@ -27,16 +27,21 @@ def handle_new_user() -> User:
     user = get_user_by_fullname(user_first_name, user_last_name)
     return user
 
-def handle_credentials():
+def handle_log_in() -> User:
     print('who are you?')
     user_input = input("first_name last_name: ")
     [first_name, last_name] = user_input.split(' ')
-    pass
+    if user_exists(first_name, last_name):
+        return get_user_by_fullname(first_name, last_name)
+    else:
+        return handle_new_user()
 
 
 # fitness = input ('Do you have any subscription to a fitness center? (Y)es or (N)o: ') # validation required on Y or N. OPTIONAL ask for the next question?
 # alternative_fitness= input ('Do you plan to go walking, running or swimming, by yourself? (Y)es or (N)o:  ') # validation required on Y or N.
 # fitness_center = input ('Enter the address of the fitness center: ')# track the address
+def handle_centers():
+    pass
 
 
 
