@@ -24,14 +24,12 @@ def graph_rep():
     db_url = 'postgresql+pg8000://postgres:3443@localhost:5433/bootcamp'
     engine = create_engine(db_url)
 
-    # query = '''SELECT date,COUNT(attendency) as session_count FROM attendance WHERE attendency is TRUE
-    #             GROUP BY date'''
     query = '''SELECT 
         CASE WHEN attendency IS TRUE THEN 'Completed' ELSE 'Not completed' END AS status,
         COUNT(*) AS count
     FROM attendance
     GROUP BY status'''
-
+    
     df = pd.read_sql(query, engine)
 
     print("DataFrame preview:")
@@ -41,15 +39,7 @@ def graph_rep():
     engine.dispose()
 
     plt.figure(figsize=(10, 6))
-    # if 'session_count' in df.columns:
-        # plt.bar(df['date'], df['session_count'], color='skyblue')
-        # plt.title('Completed Sessions', fontsize=16)
-        # plt.xlabel('Date', fontsize=14)
-        # plt.ylabel('Completed', fontsize=14)
-        # plt.grid(axis='y', linestyle='-.', alpha=0.7)
-        # plt.xticks(rotation=45, fontsize=10)
-        # plt.tight_layout()
-        # plt.show()
+    
     if 'count' in df.columns and 'status' in df.columns:
         statuses = df['status']
         counts = df['count']
