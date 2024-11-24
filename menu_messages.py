@@ -89,14 +89,17 @@ def get_past_and_incoming_alarm(alarms: list[Alarm]) -> Alarm:
 
 def handle_commands(user: User):
     pass
-
+def confirmation_session(user: User, past_alarm):
+    past_alarm.duration = 
+    print = ('Have you accomplished the session today')
+    
 def main():
     user = handle_log_in()
     schedule = handle_schedules(user)
     alarms = get_alarms(schedule)
 
     ((past_alarm, past_datetime), (incoming_alarm, incoming_datetime)) = get_past_and_incoming_alarm(alarms)
-    print(f'incoming training is at {incoming_datetime},\nin {incoming_datetime - datetime.now()}') 
+    print(f'Your next training session is at {incoming_datetime},\nin {incoming_datetime - datetime.now()}') 
 
     handle_commands(user)
 
