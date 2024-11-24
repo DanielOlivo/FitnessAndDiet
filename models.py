@@ -112,6 +112,13 @@ class Alarm(Base):
         return f"(Alarm)"
         # return super().__repr__()
 
+class Attendance(Base):
+    __tablename__ = 'attendance'
+    attendance_id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
+    alarm_id: Mapped[int] = mapped_column(ForeignKey('alarm.alarm_id', ondelete='cascade'))
+    date: Mapped[datetime]
+    attendency: Mapped[bool] 
+
 class Profile(Base):
     __tablename__ = 'profile'
     profile_id: Mapped[int] = mapped_column(primary_key=True, nullable=False)
