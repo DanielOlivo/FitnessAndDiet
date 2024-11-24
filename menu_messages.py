@@ -89,9 +89,6 @@ def get_past_and_incoming_alarm(alarms: list[Alarm]) -> Alarm:
 
 def handle_commands(user: User):
     pass
-def confirmation_session(user: User, past_alarm):
-    past_alarm.duration = 
-    print = ('Have you accomplished the session today')
     
 def main():
     user = handle_log_in()
@@ -100,6 +97,16 @@ def main():
 
     ((past_alarm, past_datetime), (incoming_alarm, incoming_datetime)) = get_past_and_incoming_alarm(alarms)
     print(f'Your next training session is at {incoming_datetime},\nin {incoming_datetime - datetime.now()}') 
+
+    notification_time: datetime = past_datetime + timedelta(hours = 2, minutes =past_alarm.duration)
+    time_difference = datetime.now() -notification_time
+
+    if time_difference.days == 0:
+        print('Have completed your training session, today?')
+        confirmation_session = input('Enter (Y)es if it is done. Otherwse, (N)o: ').capitalize()
+        if confirmation_session == 'Y':
+            
+
 
     handle_commands(user)
 
