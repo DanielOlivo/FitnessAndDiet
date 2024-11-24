@@ -13,6 +13,7 @@ class DbTest(unittest.TestCase):
 
 
     def test_all(self):
+        drop_database()
         create_database()
 
         now = datetime.now() - timedelta(minutes=5)
@@ -26,7 +27,7 @@ class DbTest(unittest.TestCase):
             last_name='Green',
             birth_date=date(1980, 10, 10),
             email = 'bob.green@gmail.com',
-            gender='M'
+            gender='M',
         )
 
         create_user(
@@ -36,6 +37,9 @@ class DbTest(unittest.TestCase):
             email = 'alice.blue@gmail.com',
             gender='F'
         )
+
+
+        self.assertTrue(user_exists('Bob', 'Green'))
 
         users = get_users()
         self.assertEqual(len(users), 2, 'two users only')
@@ -76,13 +80,13 @@ class DbTest(unittest.TestCase):
         add_schedule(bob, center1) 
         bobs_schedules = get_schedules(bob)
         self.assertEqual(len(bobs_schedules), 1)
-        bobs_schedule = bobs_schedules[0][0]
+        bobs_schedule = bobs_schedules[0]
 
 
         '''Bob worksout one time per week'''
         add_alarm(bobs_schedule, 1, 18, 0, 90)
         bobs_alarms = get_alarms(bobs_schedule)
-        first_alarm = bobs_alarms[0][0]
+        first_alarm = bobs_alarms[0]
 
         self.assertEqual(len(bobs_alarms), 1)
         self.assertEqual(type(first_alarm), Alarm)
@@ -91,7 +95,7 @@ class DbTest(unittest.TestCase):
 
         '''Bob decided to change the day for workout - to Wedndesday'''
         update_alarm(first_alarm, day_of_week=4) 
-        first_alarm = get_alarms(bobs_schedule)[0][0]
+        first_alarm = get_alarms(bobs_schedule)[0]
         self.assertEqual(first_alarm.weekday, 4)
 
 
@@ -113,7 +117,7 @@ class DbTest(unittest.TestCase):
         alices_schedules = get_schedules(alice)
 
         self.assertEqual(len(alices_schedules), 1)
-        alice_schedule = alices_schedules[0][0]
+        alice_schedule = alices_schedules[0]
         self.assertEqual(type(alice_schedule), Schedule)
         
         self.assertTrue(alice_schedule.center_id is None)

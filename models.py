@@ -100,6 +100,8 @@ class Alarm(Base):
 
     schedule: Mapped['Schedule'] = relationship(back_populates='alarms')
 
+    attendencies = relationship('Attendance', cascade='all, delete', passive_deletes=True)
+
     def to_datetime(self) -> datetime:
         today = date.today()
         days_ahead = self.weekday - today.weekday()
@@ -118,6 +120,9 @@ class Attendance(Base):
     alarm_id: Mapped[int] = mapped_column(ForeignKey('alarm.alarm_id', ondelete='cascade'))
     date: Mapped[datetime]
     attendency: Mapped[bool] 
+    create_date: Mapped[datetime] = mapped_column(default=datetime.now())
+
+    alarm: Mapped['Alarm'] = relationship(back_populates='attendencies')
 
 class Profile(Base):
     __tablename__ = 'profile'

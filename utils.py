@@ -274,9 +274,27 @@ def delete_profiles_after(date: datetime) -> None:
         session.commit()
 
 
-def add_attendence(alarm: Alarm, time: datetime, attendent: bool) -> None:
-    pass
+def add_attendence(alarm: Alarm, time: datetime, attendency: bool) -> None:
+    with Session(engine) as session:
+        attendence = Attendance(
+            alarm_id = alarm.alarm_id,
+            date = time,
+            attendency = attendency
+        )
+        session.add(attendence)
+        session.commit()
 
+def delete_attendence(attendence: Attendance):
+    with Session(engine) as session:
+        stmt = delete(Attendance).where(Attendance.attendance_id == attendence.attendance_id)
+        session.execute(stmt)
+        session.commit()
+
+def delete_attendencies_after(date: datetime):
+    with Session(engine) as session:
+        stmt = delete(Attendance).where(Attendance.create_date >= date)
+        session.execute(stmt)
+        session.commit()
 
 def show_stmts():
     print('\n\n'.join(str(stmt) for stmt in [
