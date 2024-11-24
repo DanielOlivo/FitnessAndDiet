@@ -140,7 +140,7 @@ def add_subscription(user: User, center: FitnessCenter) -> None:
 def get_user_subscriptions(user: User) -> list[FitnessSubscription]:
     with Session(engine) as session:
         stmt = select(FitnessSubscription).where(FitnessSubscription.user_id == user.user_id)
-        return session.execute(stmt).all()
+        return [row[0] for row in session.execute(stmt).all()]
 
 def delete_subscription(subscription: FitnessSubscription):
     with Session(engine) as session:
@@ -234,7 +234,7 @@ def delete_alarms_after(date: datetime):
         session.commit()
 
 
-def add_profile(user: User, height: float, weight: float, notification: datetime):
+def add_profile(user: User, height: float, weight: float, notification: datetime = None):
     with Session(engine) as session:
         profile = Profile(
             user_id = user.user_id,
@@ -295,6 +295,9 @@ def delete_attendencies_after(date: datetime):
         stmt = delete(Attendance).where(Attendance.create_date >= date)
         session.execute(stmt)
         session.commit()
+
+def count_attendency(schedule: Schedule) -> int:
+    pass
 
 def show_stmts():
     print('\n\n'.join(str(stmt) for stmt in [

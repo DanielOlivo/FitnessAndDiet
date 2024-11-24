@@ -2,6 +2,7 @@ from datetime import datetime
 from models import *
 from utils import *
 import re
+import requests
 
 def handle_date(inputFn) -> datetime:
     while True:
@@ -89,3 +90,48 @@ def handle_profile_update(user: User, inputFn):
     height = float(inputFn('Enter your height in cm: '))
     weight = float(inputFn('Enter your weight in kg: '))
     add_profile(user,height, weight)
+
+
+
+def get_past_and_incoming_alarm(alarms: list[Alarm]):
+    dates = [(alarm,alarm.to_datetime()) for alarm in alarms]
+    dates.sort(key=lambda x: x[1])
+    (next_alarm, next_datetime) = dates[0]
+    (prev_alarm, prev_datetime) = dates[-1]
+    prev_datetime -= timedelta(days = 7)
+    return ((prev_alarm, prev_datetime),(next_alarm, next_datetime))
+
+
+def get_insult():
+    try:
+        response = requests.get("https://insult.mattbas.org/api/insult")
+        return response.content
+    except:
+        return 'Failed to get response'
+
+
+def get_training_notification(schedule: Schedule):
+    alarms = get_alarms(schedule)
+    ((past_alarm, past_datetime), (incoming_alarm, incoming_datetime)) = get_past_and_incoming_alarm(alarms)
+
+    print(f'Your next training session is at {incoming_datetime},\nin {incoming_datetime - datetime.now()}') 
+    print('\n\n')
+
+    after_session_time = past_datetime + timedelta(hours=2) + timedelta(minutes=past_alarm.duration) 
+    time_diff = datetime.now() - after_session_time
+
+    if time_diff.days < 1:
+        print('Have completed your training session, today?')
+        confirmation_session = input('Enter (Y)es if it is done. Otherwse, (N)o: ').capitalize()
+        if confirmation_session == 'Y':
+            add_attendence(past_alarm,past_datetime, True)
+            print("There is a part where we connect to some API with motivational quotes, but we ran out of time")
+        else:
+            add_attendence(past_alarm,past_datetime, False)
+            #connect API with penalities injures
+            api_response = get_insult()
+            print("InsultAPI says: " + api_response)
+            print("don't take it seriously - it is a joke")
+
+    
+
