@@ -84,15 +84,18 @@ def get_past_and_incoming_alarm(alarms: list[Alarm]) -> Alarm:
     dates.sort()
     return (dates[-1] - timedelta(days=7),dates[0])
 
+def handle_commands(user: User):
+    pass
+
 def main():
     user = handle_log_in()
     schedule = handle_schedules(user)
     alarms = get_alarms(schedule)
 
     (past, incoming) = get_past_and_incoming_alarm(alarms)
-    print(f'incoming training is at {incoming}, in {incoming - datetime.now()}') 
+    print(f'incoming training is at {incoming},\nin {incoming - datetime.now()}') 
 
-
+    handle_commands(user)
 
 # fitness_session_confirm = input('Enter (Y)es to confirm, otherwise (N)o: ')# to confirm the sessions. No to 
 # fitness_notification = print(f'Today{fitness_alarm_day}, you have a session at {fitness_alarm_hour}.')# to be notified one hour before the session, the same day.
