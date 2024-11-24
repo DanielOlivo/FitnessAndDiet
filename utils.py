@@ -276,6 +276,9 @@ def delete_profiles_after(date: datetime) -> None:
         session.commit()
 
 
+def add_attendence(alarm: Alarm, time: datetime, attendent: bool) -> None:
+    pass
+
 
 def show_stmts():
     print('\n\n'.join(str(stmt) for stmt in [
