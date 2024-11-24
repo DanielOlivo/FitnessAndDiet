@@ -80,9 +80,12 @@ def handle_schedules(user: User) -> Schedule:
         return schedule
 
 def get_past_and_incoming_alarm(alarms: list[Alarm]) -> Alarm:
-    dates = [alarm.to_datetime() for alarm in alarms]
-    dates.sort()
-    return (dates[-1] - timedelta(days=7),dates[0])
+    dates = [(alarm,alarm.to_datetime()) for alarm in alarms]
+    dates.sort(key=lambda x: x[1])
+    next_alarm = dates[0]
+    previous_alarm = dates[-1]
+    previous_alarm[1] -= timedelta(days = 7)
+    return (previous_alarm,next_alarm)
 
 def handle_commands(user: User):
     pass
@@ -92,8 +95,8 @@ def main():
     schedule = handle_schedules(user)
     alarms = get_alarms(schedule)
 
-    (past, incoming) = get_past_and_incoming_alarm(alarms)
-    print(f'incoming training is at {incoming},\nin {incoming - datetime.now()}') 
+    ((past_alarm, past_datetime), (incoming_alarm, incoming_datetime)) = get_past_and_incoming_alarm(alarms)
+    print(f'incoming training is at {incoming_datetime},\nin {incoming_datetime - datetime.now()}') 
 
     handle_commands(user)
 
