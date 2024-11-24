@@ -120,6 +120,7 @@ class Attendance(Base):
     alarm_id: Mapped[int] = mapped_column(ForeignKey('alarm.alarm_id', ondelete='cascade'))
     date: Mapped[datetime]
     attendency: Mapped[bool] 
+    create_date: Mapped[datetime] = mapped_column(default=datetime.now())
 
     alarm: Mapped['Alarm'] = relationship(back_populates='attendencies')
 
