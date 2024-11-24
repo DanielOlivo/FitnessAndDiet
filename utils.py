@@ -32,7 +32,10 @@ def create_user(first_name: str, last_name: str, birth_date: date, email: str, g
         session.commit()
 
 def user_exists(first_name, last_name):
-    pass
+    with Session(engine) as session:
+        stmt = select(func.count(User.user_id)).where(User.first_name == first_name and User.last_name == last_name)
+        result =  session.execute(stmt).first()[0]
+        return result == 1
 
 def get_user_by_last_name(last_name):
     with Session(engine) as session:
