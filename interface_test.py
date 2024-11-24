@@ -124,7 +124,23 @@ class InterfaceTest(unittest.TestCase):
         super().__init__(methodName)
         self.fake = Faker()
 
+    def test_handle_profile_update(self):
+        create_alice_green()
+        user = get_user_by_fullname('Alice', 'Green')
+        fake_input_fn = FakeInput([
+            "180",
+            "65",
+            "181",
+            "67",
+            "182",
+            "68"
+        ]) 
+        for _ in range(3):
+            handle_profile_update(user, fake_input_fn)
 
+        records = get_profiles(user)
+        self.assertEqual(len(records), 3)
+        delete_user(user)
     
 
     def test_handle_new_schedules(self):
