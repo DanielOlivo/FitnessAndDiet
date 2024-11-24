@@ -88,7 +88,9 @@ def get_past_and_incoming_alarm(alarms: list[Alarm]) -> Alarm:
     return (previous_alarm,next_alarm)
 
 def handle_commands(user: User):
-    pass
+    height = float(input ('Enter your height in cm: '))
+    weight = float(input ('Enter your weight in kg: '))
+    add_profile(user,height, weight)
     
 def main():
     user = handle_log_in()
@@ -105,19 +107,13 @@ def main():
         print('Have completed your training session, today?')
         confirmation_session = input('Enter (Y)es if it is done. Otherwse, (N)o: ').capitalize()
         if confirmation_session == 'Y':
-            
-
+            add_attendence(past_alarm,past_datetime, True)
+            #connect API with reward GIF
+        else:
+            add_attendence(past_alarm,past_datetime, False)
+            #connect API with penalities injures
 
     handle_commands(user)
+    
 
-# fitness_session_confirm = input('Enter (Y)es to confirm, otherwise (N)o: ')# to confirm the sessions. No to 
-# fitness_notification = print(f'Today{fitness_alarm_day}, you have a session at {fitness_alarm_hour}.')# to be notified one hour before the session, the same day.
-# fitness_session_accomplished = input ('Enter (C)omplete, to confirm you actually did your session. Otherwise (U)ncomplete: ')# validation with the return.
-user_profile_w = input ('Enter your weight in kg: ') # validate the number format, stamp with the date
-timestamp = datetime.now()# extract the day 
-formatted_timestamp = timestamp.strftime("%Y-%m-%d")
-user_profile_h = input ('Enter your height in com: ') # validate the number format. 
-user_weight_notification = print ('''f'{formatted_timestamp} is the last time you have recorded your weight ({user_profile_w}).
-                                  Please enter it again: ''')#validate the number format.
-timestamp = datetime.now()# date updated
-formatted_timestamp = timestamp.strftime("%Y-%m-%d") #date formatted updated 
+
