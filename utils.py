@@ -164,8 +164,6 @@ def get_subscriptions_after(date: datetime) -> list[FitnessSubscription]:
         stmt = select(FitnessSubscription).where(FitnessSubscription.creation_date >= date)
         return [row[0] for row in session.execute(stmt).all()]
 
-
-
 def add_schedule(user: User, center: FitnessCenter):
     with Session(engine) as session:
         schedule = Schedule(
