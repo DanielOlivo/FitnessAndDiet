@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import requests
+import random
 
 def get_weekly_stats(user_id):
     # Simulating data fetch from a database
@@ -22,9 +23,9 @@ def get_weekly_stats(user_id):
     return {"sessions_completed": len(weekly_sessions), "weight_loss": weight_loss}
 
 def fetch_quote():
-    response = requests.get("https://zenquotes.io/api/random")
-    if response.ok:
-        return response.json()[0]['q']
+    response = random.choices('congratulation','Mazal Tov','Kol Hakavod', 'Molodets', 'Felicitations!')
+    if response:
+        print(response)
     else:
         return "Keep pushing forward! Every effort counts."
 
